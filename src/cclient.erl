@@ -2,14 +2,14 @@
 -export([main/0, loop/1]).
 
 main() ->
-    application:start(chumak),
-    {ok, Socket} = chumak:socket(req, "req"),
-    chumak:connect(Socket, tcp, "localhost", 8080),
+    {ok, Context} = erlzmq:context(),
+    {ok, Socket} = erlzmq:socket(Context, req),
+    ok = erlzmq:connect(Socket, "ipc://test_hello"),
     loop(Socket).
 
 loop(Socket) ->
-    chumak:send(Socket, "This send client"),
-    {ok, Recv} = chumak:recv(Socket), 
-    io:format("Message: ~p\n", [Recv]),
+    erlzmq:send(Socket, <<"this client sent">>),   
+    {ok, Recv} = erlzmq:recv(Socket), 
+    io:format("recv msg: ~s", [Recv]),
     timer:sleep(1000),
     loop(Socket).
